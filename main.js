@@ -1,49 +1,54 @@
-var student_array=[];
-function submit(){
-var display_student_array=[];
+video="";
+status="";
+objects="";
 
 
-
-for (var j=1; j<=4; j++)
-{
-    var name_of_the_student=document.getElementById("name_of_the_student_"+j).value;
-    console.log(name_of_the_student);
-
-    student_array.push(name_of_the_student);
-
-}
-console.log(student_array);
-var lentofarray=student_array.lenght;
-console.log(lentofarray);
-
-for (var k=0; k< lentofarray; k++){
-
-    display_student_array.push("<h4>Name-" +student_array[k]+"</h4>");
-    console.log(display_student_array);}
-
-    document.getElementById("display_name_with_commas").innerHTML=display_student_array;
-var removecomas=display_student_array.join(" ");
-document.getElementById("display_name_without_commas").innerHTML=removecomas;
-document.getElementById("submit_button").style.display="none";
-document.getElementById("sort_button").style.display="inline-block";
+function preload(){
+    video=createVideo("video.mp4");
+    video.hide();
 }
 
-
-function sorting(){
-student_array.sort();
-console.log(student_array);
-var array_sort=[];
-var lentofarray=student_array.lenght;
-console.log(lentofarray);
-
-for (var k=0; k< lentofarray; k++){
-
-    display_student_array.push("<h4>Name-" +student_array[k]+"</h4>");
-
-    console.log(display_student_array);
+function setup(){
+    canvas=createCanvas(480,380);
+    canvas.center();
 }
-var removecomas=display_student_array.join(" ");
-document.getElementById("display_name_without_commas").innerHTML=removecomas;
 
+function start(){
+    objectDetector=ml5.objectDetector("cocossd" , modelLoaded);
+    document.getElementById("status").innerHTML="status : Detecting Objects";
+}
 
+function draw(){
+image(video,0,0,480,380);
+if(status !=""){
+    objectDetector.detect(video, gotResult);
+    for(i=0; i< objects.length; i++ ) {
+        document.getElementById("status").innerHTML="status : Detecting Objects";
+        document.getElementById("number_of_objects").innerHTML="No. of objects detected are:"+objects.length;
+        fill("#FF0000");
+        percent= floor(objects[i].confidence*100);
+        text(objects[i].label + " " + percent +"%",objects[i].x + 15 , objects[i].y + 15);
+        noFill();
+        stroke("#FF0000");
+        rect(objects[i].x,objects[i].y,objects[i].width,objects[i].height);
+    }
+}
+}
+
+function modelLoaded(){
+    status=true;
+    console.log("modelLoaded");
+    video.loop();
+    video.speed(1);
+    video.volume(0);
+}
+
+function gotResult(error,results){
+    if(error){
+        console.error(error);
+    }
+    else{
+        console.log(results);
+        objects=results;
+    }
 }
